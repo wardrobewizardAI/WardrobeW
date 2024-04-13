@@ -1,75 +1,78 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:react-frontend,deps:python:backend
 version: 2.1
-orbs:
-  node: circleci/node@5
-  python: circleci/python@2
-jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    working_directory: ~/project/react-frontend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    # Build node project
-    executor: node/default
-    working_directory: ~/project/react-frontend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  test-python:
-    # Install dependencies and run tests
-    docker:
-      - image: cimg/python:3.8-node
-    working_directory: ~/project/backend
-    steps:
-      - checkout:
-          path: ~/project
-      - python/install-packages
-      - run:
-          name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      - store_test_results:
-          path: junit.xml
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
 workflows:
-  build-and-test:
+  myApp:
     jobs:
-      - test-node
-      - build-node:
+      - build-test-python
+      - build-react
+      - publish-python-image:
           requires:
-            - test-node
-            - test-python
-      - test-python
-    # - deploy:
-    #     requires:
-    #       - build-node
+            - build-test-python
+      - deploy:
+          requires:
+            - build-test-python
+            - publish-python-image
+            - build-react
+jobs:
+  build-test-python:
+    docker:
+    - image: python:3.9.19-slim
+    steps:
+      - checkout
+      # Whatever you want to do
+      - run:
+          name: Build and Test Python app
+          command: |
+            cd backend
+            pip install -r requirements.txt
+            # python removeBgTest.py # uncomment to unable test
+            # python canvasImageTest.py # uncomment to unable test
+  build-react:
+    docker:
+      - image: node:lts-slim
+    steps:
+      - checkout
+      - run:
+          name: Build React app
+          command: |
+            npm install --prefix frontend
+            npm run build --prefix frontend
+            ls -la
+      - persist_to_workspace:
+          root: frontend
+          paths:
+            - build/
+  publish-python-image:
+    docker:
+      - image: cimg/base:2024.02
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and Push python-app Docker image
+          command: |
+            cd backend
+            TAG=latest
+            docker build -t $DOCKERHUB_USERNAME/python-app:$TAG .
+            echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+            docker push $DOCKERHUB_USERNAME/python-app:$TAG
+  deploy:
+    docker:
+      - image: ubuntu:22.04
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./frontend
+      - run:
+          name: Deploy App to server
+          command: |
+            apt update && apt install openssh-client -y
+            # Copy Frontend app
+            scp -r -oStrictHostKeyChecking=no frontend/build circleci@74.249.112.236:~/
+            scp -oStrictHostKeyChecking=no docker-compose.yml circleci@74.249.112.236:~/
+            scp -oStrictHostKeyChecking=no nginx.conf circleci@74.249.112.236:~/
+            # Copy upgrade script and execute
+            scp -r -oStrictHostKeyChecking=no upgrade.sh circleci@74.249.112.236:~/
+            ssh circleci@74.249.112.236 '/bin/bash upgrade.sh'
