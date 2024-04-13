@@ -33,9 +33,8 @@ jobs:
       - checkout
       - run:
           name: Build React app
-          environment:
-            CI: false
           command: |
+            export CI=false
             export NODE_OPTIONS=--openssl-legacy-provider
             npm install --prefix react-frontend
             npm run build --prefix react-frontend
