@@ -34,11 +34,11 @@ jobs:
       - run:
           name: Build React app
           command: |
-            npm install --prefix frontend
-            npm run build --prefix frontend
+            npm install --prefix react-frontend
+            npm run build --prefix react-frontend
             ls -la
       - persist_to_workspace:
-          root: frontend
+          root: react-frontend
           paths:
             - build/
   publish-python-image:
@@ -64,13 +64,13 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ./frontend
+          at: ./react-frontend
       - run:
           name: Deploy App to server
           command: |
             apt update && apt install openssh-client -y
             # Copy Frontend app
-            scp -r -oStrictHostKeyChecking=no frontend/build circleci@74.249.112.236:~/
+            scp -r -oStrictHostKeyChecking=no react-frontend/build circleci@74.249.112.236:~/
             scp -oStrictHostKeyChecking=no docker-compose.yml circleci@74.249.112.236:~/
             scp -oStrictHostKeyChecking=no nginx.conf circleci@74.249.112.236:~/
             # Copy upgrade script and execute
