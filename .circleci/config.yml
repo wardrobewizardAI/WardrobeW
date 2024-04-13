@@ -34,6 +34,7 @@ jobs:
       - run:
           name: Build React app
           command: |
+            export NODE_OPTIONS=--openssl-legacy-provider
             npm install --prefix react-frontend
             npm run build --prefix react-frontend
             ls -la
