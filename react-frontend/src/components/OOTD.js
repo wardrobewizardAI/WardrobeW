@@ -79,7 +79,7 @@ const OOTD = () => {
     
     try {
 
-        //Deployment URL
+        //Deployment URL: Change this if you want to run locally. 
         const response = await axios.post('http://74.249.112.236:5000/outfit', outfitData, {
         //Localhost URL
         //const response = await axios.post('http://127.0.0.1:5000/outfit', outfitData, {
