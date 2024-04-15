@@ -70,12 +70,12 @@ jobs:
           #root: react-frontend
           #paths:
             #- build/
-  #publish-python-image:
-    #docker:
-      #- image: cimg/base:2024.02
-        #auth:
-          #username: $DOCKERHUB_USERNAME
-          #password: $DOCKERHUB_PASSWORD
+  publish-python-image:
+    docker:
+      - image: cimg/base:2024.02
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
       - setup_remote_docker
