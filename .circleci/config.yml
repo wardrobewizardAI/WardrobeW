@@ -32,6 +32,17 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Build .env file
+          command: |
+            touch react-frontend/.env
+            echo $REACT_APP_FIREBASE_KEY >> react-frontend/.env
+            echo $REACT_APP_FIREBASE_DOMAIN >> react-frontend/.env
+            echo $REACT_APP_FIREBASE_PROJECT_ID >> react-frontend/.env
+            echo $REACT_APP_FIREBASE_STORAGE_BUCKET >> react-frontend/.env
+            echo $REACT_APP_FIREBASE_MESSAGING_SENDER_ID >> react-frontend/.env
+            echo $REACT_APP_FIREBASE_APP_ID >> react-frontend/.env
+            echo $REACT_APP_WEATHER_API_ >> react-frontend/.env
+      - run:
           name: Build React app
           command: |
             export CI=false
@@ -43,12 +54,28 @@ jobs:
           root: react-frontend
           paths:
             - build/
-  publish-python-image:
-    docker:
-      - image: cimg/base:2024.02
-        auth:
-          username: $DOCKERHUB_USERNAME
-          password: $DOCKERHUB_PASSWORD
+    #docker:
+      #- image: node:lts-slim
+    #steps:
+      #- checkout
+      #- run:
+          #name: Build React app
+          #command: |
+            #export CI=false
+            #export NODE_OPTIONS=--openssl-legacy-provider
+            #npm install --prefix react-frontend
+            #npm run build --prefix react-frontend
+            #ls -la
+      #- persist_to_workspace:
+          #root: react-frontend
+          #paths:
+            #- build/
+  #publish-python-image:
+    #docker:
+      #- image: cimg/base:2024.02
+        #auth:
+          #username: $DOCKERHUB_USERNAME
+          #password: $DOCKERHUB_PASSWORD
     steps:
       - checkout
       - setup_remote_docker
