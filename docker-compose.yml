@@ -13,7 +13,7 @@ services:
       BACKEND_DNS: http://backend:5000/
     restart: always
   backend:
-    image: garvitpatel196/python-app:latest
+    image: wardrobewizard/python-app:latest
     ports:
       - "5000:5000"
     restart: always
