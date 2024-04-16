@@ -22,7 +22,7 @@ jobs:
       - run:
           name: copy credential to a file
           command: |
-            cd backend
+            cd backend/src
             echo $BACKEND_FIREBASE_CREDS	> wardrobe-wizard-105dd-firebase-adminsdk.json
       - run:
           name: Build and Test Python app
@@ -87,7 +87,7 @@ jobs:
       - run:
           name: copy credential to a file
           command: |
-            cd backend
+            cd backend/src
             echo $BACKEND_FIREBASE_CREDS	> wardrobe-wizard-105dd-firebase-adminsdk.json
       - run:
           name: Build and Push python-app Docker image
