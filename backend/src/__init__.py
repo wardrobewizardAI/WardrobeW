@@ -10,8 +10,8 @@ from firebase_admin import credentials, firestore, initialize_app
 def create_app():
     app = Flask(__name__)
     # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-    # CORS(app)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app)
+    #CORS(app, resources={r"/*": {"origins": "*"}})
     # Initialize Firebase Admin SDK
     cred = credentials.Certificate('src/wardrobe-wizard-105dd-firebase-adminsdk.json')
     initialize_app(cred, {
