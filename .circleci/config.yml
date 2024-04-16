@@ -80,6 +80,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: copy credential to a file
+          command: |
+            cd backend
+            echo $BACKEND_FIREBASE_CREDS	> wardrobe-wizard-105dd-firebase-adminsdk.json
+      - run:
           name: Build and Push python-app Docker image
           command: |
             cd backend
