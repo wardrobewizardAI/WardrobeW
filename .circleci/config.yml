@@ -24,8 +24,8 @@ jobs:
           command: |
             cd backend
             pip install -r requirements.txt
-             python removeBgTest.py # uncomment to unable test
-             python canvasImageTest.py # uncomment to unable test
+              python removeBgTest.py # uncomment to unable test
+              python canvasImageTest.py # uncomment to unable test
   build-react:
     docker:
       - image: node:lts-slim
